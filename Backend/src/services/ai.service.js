@@ -27,6 +27,11 @@ export async function generateTtile(message) {
 }
 
 export async function generateResponse(messages) {
+
+   if (!messages || messages.length === 0) {
+    throw new Error("Messages array is empty");
+  }
+
   const response = await GeminiModel.invoke(messages.map ((msg)=>{
     if(msg.role === 'user'){
       return new HumanMessage(msg.content);
