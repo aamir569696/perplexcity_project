@@ -1,5 +1,6 @@
 import UserModel from "../models/user.model.js";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 
 // @description: Register a new user
 // @route: POST /api/auth/register
@@ -15,10 +16,11 @@ export async function registerUser(req, res) {
   if (isUserExist) {
     return res.status(400).json({ message: "User already exists" });
   }
+   const hashedPassword = await bcrypt.hash(password, 10);
   const newUser = await UserModel.create({
     username,
     email,
-    password,
+    password:hashedPassword,
   });
 
   const emailVerificationToken = jwt.sign(
@@ -26,6 +28,8 @@ export async function registerUser(req, res) {
     process.env.JWT_SECRET,
   );
 
+
+  
   return res.status(201).json({
     message: "User registered successfully",
     newUser: {
