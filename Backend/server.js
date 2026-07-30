@@ -2,6 +2,10 @@ import dotenv from "dotenv";
 dotenv.config();
 import connectDB from "./src/config/Database.js";
 import app from "./src/app.js";
+import { testGemini } from "./src/services/ai.service.js";
+
+
+testGemini()
 
 connectDB().catch((err) => {
   console.log("Database connection failed:", err);
