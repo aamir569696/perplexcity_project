@@ -1,10 +1,16 @@
 import { useState } from 'react';
+import {useNavigate} from "react-router";
+import { useAuth } from '../hook/useauth';
 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+
+  const navigate = useNavigate();
+
+  const {handleLogin}= useAuth();
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -14,9 +20,19 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit =async (event) => {
     event.preventDefault();
-    console.log('Login form submitted:', formData);
+
+    const payload = {
+      email,
+      password,
+    }
+
+
+    await handleLogin(payload);
+    navigate("/dashboard");
+
+    // console.log('Login form submitted:', formData);
   };
 
   return (

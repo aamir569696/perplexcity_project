@@ -18,6 +18,10 @@ const router = createBrowserRouter([
   {
     path:'/forget',
     element: <h1> forget page</h1>
+  },
+  {
+    path: '/dashboard',
+    element: <h1>Dashbord page</h1>
   }
 ]);
 
