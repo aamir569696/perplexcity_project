@@ -93,7 +93,7 @@ export async function loginUser(req, res) {
       },
       process.env.JWT_SECRET,
       {
-        expiresIn: "5d",
+        expiresIn: "15d",
       },
     );
     res.cookie("token", token)

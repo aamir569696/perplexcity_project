@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../hook/useauth";
+import { useSelector } from "react-redux";
+import {Navigate} from "react-router";
 
 
 const Login = () => {
@@ -8,6 +10,9 @@ const Login = () => {
     email: "",
     password: "",
   });
+
+  const user = useSelector((state) => state.auth.user);
+  const loading = useSelector((state) => state.auth.loading);
 
   const navigate = useNavigate();
 
@@ -38,6 +43,10 @@ console.log("Calling handleLogin");
 
     console.log("Login form submitted:", formData);
   };
+
+  if(!loading && user){
+    return <Navigate to="/dashboard" replace />
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 px-4 py-12 text-slate-100 sm:px-6 lg:px-8">

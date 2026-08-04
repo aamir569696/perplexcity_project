@@ -6,7 +6,7 @@ const model = new ChatGoogleGenerativeAI({
 });
 
 export async function testGemini(req, res) {
-  await model.invoke("what is AI explain above 100 words?").then((response) => {
+  await model.invoke("what is AI explain under 10 words?").then((response) => {
     console.log(response.text);
   });
 }
