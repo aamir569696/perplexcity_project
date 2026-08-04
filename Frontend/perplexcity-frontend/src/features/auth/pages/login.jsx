@@ -1,16 +1,17 @@
-import { useState } from 'react';
-import {useNavigate} from "react-router";
-import { useAuth } from '../hook/useauth';
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import { useAuth } from "../hook/useauth";
+
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
   const navigate = useNavigate();
 
-  const {handleLogin}= useAuth();
+  const { handleLogin } = useAuth();
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -20,19 +21,22 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit =async (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
+console.log("Calling handleLogin");
     const payload = {
-      email,
-      password,
-    }
+      email: formData.email,
+      password: formData.password,
+    };
 
 
-    await handleLogin(payload);
+    await handleLogin(payload.email, payload.password);
+        console.log("handleLogin finished");
+
     navigate("/dashboard");
 
-    // console.log('Login form submitted:', formData);
+    console.log("Login form submitted:", formData);
   };
 
   return (
@@ -41,23 +45,28 @@ const Login = () => {
         <div className="flex flex-col justify-between bg-linear-to-br from-violet-600 via-indigo-600 to-cyan-500 p-8 sm:p-10 lg:p-12">
           <div>
             <div className="mb-6 inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-violet-100">
-Welcome back to PerplexCity     
-       </div>
+              Welcome back to PerplexCity
+            </div>
             <h1 className="max-w-md text-3xl font-bold tracking-tight text-white sm:text-4xl">
               Welcome back to your next adventure.
             </h1>
             <p className="mt-4 max-w-md text-sm text-violet-50/80 sm:text-base">
-              Sign in to continue your AI conversations, access saved chats, and discover answers powered by Gemini AI.
+              Sign in to continue your AI conversations, access saved chats, and
+              discover answers powered by Gemini AI.
             </p>
           </div>
 
           <div className="mt-10 space-y-4 text-sm text-violet-50/90">
             <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-base font-semibold">01</span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-base font-semibold">
+                01
+              </span>
               <span>Continue your previous AI conversations</span>
             </div>
             <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-base font-semibold">02</span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-base font-semibold">
+                02
+              </span>
               <span>Get fast, intelligent answers instantly</span>
             </div>
           </div>
@@ -66,13 +75,18 @@ Welcome back to PerplexCity
         <div className="flex items-center justify-center p-6 sm:p-8 lg:p-12">
           <div className="w-full max-w-md">
             <div className="mb-8">
-              <p className=" text-3xl font-medium uppercase tracking-[0.2em] text-violet-400">Login</p>
+              <p className=" text-3xl font-medium uppercase tracking-[0.2em] text-violet-400">
+                Login
+              </p>
               {/* <h2 className="mt-2 text-3xl font-semibold text-white">Sign in</h2> */}
             </div>
 
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="space-y-2">
-                <label htmlFor="email" className="block text-sm font-medium text-slate-200">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-slate-200"
+                >
                   Email
                 </label>
                 <input
@@ -89,7 +103,10 @@ Welcome back to PerplexCity
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="password" className="block text-sm font-medium text-slate-200">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-slate-200"
+                >
                   Password
                 </label>
                 <input
@@ -107,10 +124,16 @@ Welcome back to PerplexCity
 
               <div className="flex items-center justify-between gap-3 text-sm text-slate-300">
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-violet-500 focus:ring-violet-500" />
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-violet-500 focus:ring-violet-500"
+                  />
                   Remember me
                 </label>
-                <a href="/forget" className="font-medium text-violet-400 transition hover:text-violet-300">
+                <a
+                  href="/forget"
+                  className="font-medium text-violet-400 transition hover:text-violet-300"
+                >
                   Forgot password?
                 </a>
               </div>
@@ -124,8 +147,11 @@ Welcome back to PerplexCity
             </form>
 
             <p className="mt-6 text-center text-sm text-slate-400">
-              Don&apos;t have an account?{' '}
-              <a href="/register" className="font-medium text-violet-400 transition hover:text-violet-300">
+              Don&apos;t have an account?{" "}
+              <a
+                href="/register"
+                className="font-medium text-violet-400 transition hover:text-violet-300"
+              >
                 Create one
               </a>
             </p>

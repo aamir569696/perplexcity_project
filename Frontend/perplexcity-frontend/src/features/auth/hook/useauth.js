@@ -3,45 +3,53 @@ import { registerUser, loginUser, getMeUser } from "../service/auth.api";
 import { setUser, setLoading, setError } from "../auth.slice";
 
 export function useAuth() {
-  const diapatch = useDispatch();
+  const dispatch = useDispatch();
 
   async function handleRegister({ username, email, password }) {
     try {
-      diapatch(setLoading(true));
-      const data = await register({ username, email, password });
-        diapatch(setUser(data));
+      dispatch(setLoading(true));
+      const data = await registerUser({ username, email, password });
+        dispatch(setUser(data));
     } catch (error) {
-      diapatch(setError(error.response?.data?.message || "Register faild"));
+      dispatch(setError(error.response?.data?.message || "Register faild"));
     } finally {
-      diapatch(setLoading(false));
+      dispatch(setLoading(false));
     }
   }
 
   async function handleLogin(email, password) {
+    console.log(email),
+console.log(password),
+    console.log("Inside handleLogin");
     try {
-      diapatch(setLoading(true));
-      const data = await handleLoginUser({ email, password });
-      diapatch(setUser(data));
+      dispatch(setLoading(true));
+      console.log("Before loginUser");
+      const data = await loginUser({ email, password });
+
+      dispatch(setUser(data));
+console.log("After loginUser", data);
     } catch (error) {
-      diapatch(setError(error.response?.data?.message || "Login faild"));
+       console.log(error);  
+      dispatch(setError(error.response?.data?.message || "Login faild"));
     } finally {
-      diapatch(setLoading(false));
+      dispatch(setLoading(false));
     }
   }
 
   async function handleGetMe() {
     try {
-      diapatch(setLoading(true));
+      dispatch(setLoading(true));
       const data = await getMeUser();
     } catch (error) {
-      diapatch(setError(error.response?.data?.message || "GetMe faild"));
+      dispatch(setError(error.response?.data?.message || "GetMe faild"));
     } finally {
-      diapatch(setLoading(false));
+      dispatch(setLoading(false));
     }
   }
 
 
   return{
+
     handleRegister,
     handleLogin,
     handleGetMe

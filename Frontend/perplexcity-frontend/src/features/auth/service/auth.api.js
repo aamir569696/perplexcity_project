@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api =axios.create({
-    baseURL:'http:localhost:3000',
+    baseURL:'http://localhost:3000',
     withCredentials:true
 })
 
@@ -11,6 +11,8 @@ export async function registerUser({username,email,password}) {
 }
 
 export async function loginUser({email,password}) {
+
+    console.log("Inside auth.api loginUser");
     const response=await api.post("/api/auth/login",{email,password})
     return response.data
 }
