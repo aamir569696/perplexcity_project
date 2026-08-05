@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "../hook/useauth";
 import { useSelector } from "react-redux";
 import {Navigate} from "react-router";
+import Dashbord from "../../chat/pages/Dashbord";
 
 
 const Login = () => {
@@ -36,17 +37,19 @@ console.log("Calling handleLogin");
     };
 
 
-    await handleLogin(payload.email, payload.password);
-        console.log("handleLogin finished");
-
-    navigate("/dashboard");
-
-    console.log("Login form submitted:", formData);
+   const success= await handleLogin(payload.email, payload.password);
+        
+   if (success) {
+      navigate("/dashboard");
+   } 
+   
+   else{
+prompt("Login failed. Please check your credentials and try again.");
+   }
+   console.log(success)
   };
 
-  if(!loading && user){
-    return <Navigate to="/dashboard" replace />
-  }
+ 
 
   return (
     <div className="min-h-screen bg-slate-950 px-4 py-12 text-slate-100 sm:px-6 lg:px-8">

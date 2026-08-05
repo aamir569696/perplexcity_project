@@ -18,19 +18,19 @@ export function useAuth() {
   }
 
   async function handleLogin(email, password) {
-    console.log(email),
-console.log(password),
-    console.log("Inside handleLogin");
     try {
       dispatch(setLoading(true));
       console.log("Before loginUser");
       const data = await loginUser({ email, password });
-
+      console.log('after');
       dispatch(setUser(data));
-console.log("After loginUser", data);
+      return true; // Indicate successful login
+
     } catch (error) {
-       console.log(error);  
       dispatch(setError(error.response?.data?.message || "Login faild"));
+      console.log(error);
+      return false; // Indicate failed login
+      
     } finally {
       dispatch(setLoading(false));
     }
@@ -40,6 +40,7 @@ console.log("After loginUser", data);
     try {
       dispatch(setLoading(true));
       const data = await getMeUser();
+      dispatch(setUser(data));
     } catch (error) {
       dispatch(setError(error.response?.data?.message || "GetMe faild"));
     } finally {

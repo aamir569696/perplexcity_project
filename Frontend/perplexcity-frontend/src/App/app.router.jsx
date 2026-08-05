@@ -2,7 +2,7 @@ import { createBrowserRouter, Navigate } from "react-router";
 import Login from "../features/auth/pages/login";
 import Register from "../features/auth/pages/register";
 import Dashbord from "../features/chat/pages/Dashbord";
-import protected from "../features/auth/components/protected";
+import Protected from "../features/auth/components/protected";
 
 const router = createBrowserRouter([
   {
@@ -23,11 +23,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: (
-      <protected>
+    element: 
+      <Protected>
         <Dashbord />
-      </protected>
-    ),
+      </Protected>
+    ,
   },
 ]);
 

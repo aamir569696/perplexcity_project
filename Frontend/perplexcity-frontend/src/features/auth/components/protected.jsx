@@ -16,4 +16,4 @@ const Protected = ({ children }) => {
   return children;
 };
 
-export default protected;
+export default Protected;
