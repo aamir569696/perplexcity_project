@@ -3,6 +3,7 @@ import Login from "../features/auth/pages/login";
 import Register from "../features/auth/pages/register";
 import Dashbord from "../features/chat/pages/Dashbord";
 import Protected from "../features/auth/components/protected";
+import Publicroute from "../features/auth/components/Publicroute";
 
 const router = createBrowserRouter([
   {
@@ -11,11 +12,13 @@ const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <Login />,
+    element: <Publicroute>
+      <Login />
+    </Publicroute>,
   },
   {
     path: "/register",
-    element: <Register />,
+    element: <Register/>
   },
   {
     path: "/forget",
