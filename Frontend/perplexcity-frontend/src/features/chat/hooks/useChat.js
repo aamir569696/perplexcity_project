@@ -13,11 +13,13 @@ import {
   seterror,
    createnewChat,
   addNewMessage,
+  addMessages
 } from "../chat.slice";
 import { useDispatch } from "react-redux";
 
 export const useChat = () => {
   const dispatch = useDispatch();
+
   async function handlesendMessage({ message, chatId }) {
     dispatch(setLoading(true));
     const data = await sendMessage({ message, chatId });
@@ -43,8 +45,47 @@ export const useChat = () => {
 
   }
 
+  async function hanglegetChats() {
+    dispatch(setLoading(true))
+
+    const data=await getChats()
+   const {chats}=data
+   dispatch(setChats(chats.reduce((acc,chat)=>{
+    acc[chat._id]={
+      id:chat._id,
+      title:chat.title,
+      message:[],
+      lastUpdated:chat.updateAt,
+    }
+    return acc
+   },{})))
+dispatch(setLoading(false))
+    
+  }
+
+  async function handleOpenChats(chatId) {
+    const data=await getMessages(chatId)
+    const {message}=data
+
+    const formetedmessages=message.map(msg=>({
+      content:msg.content,
+      role:msg.role
+    }))
+
+    dispatch(addMessages({
+      chatId,
+      message:formetedmessages
+    }))
+
+    dispatch(setCurrentChatId(chatId))
+
+  }
+
+
   return {
     initializeSocketConnection,
     handlesendMessage,
+    hanglegetChats,
+    handleOpenChats
   };
 };
