@@ -1,82 +1,58 @@
-﻿import { useState } from "react";
+﻿import { useState, useEffect } from "react";
+import { useChat } from "../hooks/useChat";
+import { useDispatch, useSelector } from "react-redux";
+import { setCurrentChatId } from "../chat.slice";
 
 const Dashboard = () => {
-  const [darkMode, setDarkMode] = useState(true);
+  const dispatch = useDispatch();
 
-  const [chats, setChats] = useState([]);
-  const [activeChatId, setActiveChatId] = useState(null);
+  const { handlesendMessage, hanglegetChats, handleOpenChats } = useChat();
+
+  const { chats, currentChatId } = useSelector((state) => state.chat);
+
+  useEffect(() => {
+    hanglegetChats();
+  }, []);
+
+  const [darkMode, setDarkMode] = useState(true);
   const [message, setMessage] = useState("");
 
-  const activeChat = chats.find(
-    (chat) => chat.id === activeChatId
-  );
+  const activeChat = currentChatId ? chats[currentChatId] : null;
+
+  const messages = activeChat?.message || [];
 
   const startNewChat = () => {
-    const newChat = {
-      id: Date.now(),
-      title: "New Chat",
-      messages: [],
-    };
-
-    setChats((prev) => [newChat, ...prev]);
-    setActiveChatId(newChat.id);
+    dispatch(setCurrentChatId(null));
     setMessage("");
   };
 
-  const sendMessage = (text) => {
-    const content = text.trim();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const content = message.trim();
 
     if (!content) return;
 
-    let currentChatId = activeChatId;
+    try {
+      await handlesendMessage({
+        message: content,
+        chatId: currentChatId,
+      });
 
-    // If no chat is selected, create one automatically
-    if (!currentChatId) {
-      const newChat = {
-        id: Date.now(),
-        title: content.slice(0, 35),
-        messages: [
-          {
-            id: Date.now() + 1,
-            role: "user",
-            content,
-          },
-        ],
-      };
-
-      setChats((prev) => [newChat, ...prev]);
-      setActiveChatId(newChat.id);
       setMessage("");
-      return;
+    } catch (error) {
+      console.error("Message send failed:", error);
     }
-
-    const newMessage = {
-      id: Date.now(),
-      role: "user",
-      content,
-    };
-
-    setChats((prev) =>
-      prev.map((chat) =>
-        chat.id === currentChatId
-          ? {
-              ...chat,
-              title:
-                chat.messages.length === 0
-                  ? content.slice(0, 35)
-                  : chat.title,
-              messages: [...chat.messages, newMessage],
-            }
-          : chat
-      )
-    );
-
-    setMessage("");
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    sendMessage(message);
+  //purani chat open k leya
+
+  const openChat = async (chatId) => {
+    try {
+      await handleOpenChats(chatId);
+    } catch (error) {
+      console.error("Chat open failed:", error);
+    }
   };
 
   const suggestions = [
@@ -148,18 +124,16 @@ const Dashboard = () => {
             Recent
           </p>
 
-          {chats.length === 0 ? (
-            <p className={`px-2 text-xs ${theme.muted}`}>
-              No recent chats
-            </p>
+          {Object.keys(chats).length === 0 ? (
+            <p className={`px-2 text-xs ${theme.muted}`}>No recent chats</p>
           ) : (
             <div className="space-y-1">
-              {chats.map((chat) => (
+              {Object.values(chats).map((chat) => (
                 <button
                   key={chat.id}
-                  onClick={() => setActiveChatId(chat.id)}
+                  onClick={() => openChat(chat.id)}
                   className={`w-full truncate rounded-lg px-3 py-2.5 text-left text-sm transition ${
-                    activeChatId === chat.id
+                    currentChatId === chat.id
                       ? theme.active
                       : `${theme.muted} ${theme.hover}`
                   }`}
@@ -186,9 +160,7 @@ const Dashboard = () => {
               U
             </div>
 
-            <span className="text-xs font-medium">
-              Your Account
-            </span>
+            <span className="text-xs font-medium">Your Account</span>
           </div>
         </div>
       </aside>
@@ -197,7 +169,7 @@ const Dashboard = () => {
       <main className="flex min-w-0 flex-1 flex-col overflow-y-auto">
         <div className="mx-auto flex min-h-full w-full max-w-5xl flex-col px-5 py-6 md:px-10">
           {/* CHAT SCREEN */}
-          {!activeChat || activeChat.messages.length === 0 ? (
+          {!activeChat || messages.length === 0 ? (
             <section className="flex flex-1 flex-col items-center justify-center pb-10">
               {/* Brand */}
               <div className="mb-9 text-center">
@@ -212,33 +184,30 @@ const Dashboard = () => {
 
               {/* Categories */}
               <div className="mb-8 flex flex-wrap justify-center gap-2">
-                {["For You", "Study", "Business", "Health"].map(
-                  (item) => (
-                    <button
-                      key={item}
-                      className={`rounded-full border px-4 py-2 text-xs transition ${theme.chip}`}
-                    >
-                      {item}
-                    </button>
-                  )
-                )}
+                {["For You", "Study", "Business", "Health"].map((item) => (
+                  <button
+                    key={item}
+                    className={`rounded-full border px-4 py-2 text-xs transition ${theme.chip}`}
+                  >
+                    {item}
+                  </button>
+                ))}
               </div>
 
               {/* INPUT */}
-              <form
-                onSubmit={handleSubmit}
-                className="w-full max-w-3xl"
-              >
-                <div
-                  className={`rounded-3xlrder p-3 shadow-xl ${theme.input}`}
-                >
+              <form onSubmit={handleSubmit} className="w-full max-w-3xl">
+                <div className={`rounded-3xlrder p-3 shadow-xl ${theme.input}`}>
                   <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
                         e.preventDefault();
-                        sendMessage(message);
+                        e.currentTarget.form?.requestSubmit();
+                        handlesendMessage({
+                          message: content,
+                          chatId: currentChatId,
+                        });
                       }
                     }}
                     placeholder="Ask anything..."
@@ -285,13 +254,11 @@ const Dashboard = () => {
             <>
               {/* MESSAGES */}
               <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 py-10">
-                {activeChat.messages.map((msg) => (
+                {messages.map((msg, index) => (
                   <div
-                    key={msg.id}
+                    key={msg.id || index}
                     className={`flex ${
-                      msg.role === "user"
-                        ? "justify-end"
-                        : "justify-start"
+                      msg.role === "user" ? "justify-end" : "justify-start"
                     }`}
                   >
                     <div
@@ -321,7 +288,11 @@ const Dashboard = () => {
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
                         e.preventDefault();
-                        sendMessage(message);
+                        e.currentTarget.form?.requestSubmit();
+                        sendMessage({
+                          message: content,
+                          chatId: currentChatId,
+                        });
                       }
                     }}
                     placeholder="Ask anything..."

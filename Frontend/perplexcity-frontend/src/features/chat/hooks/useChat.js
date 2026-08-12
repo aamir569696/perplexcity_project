@@ -4,16 +4,15 @@ import {
   getChats,
   getMessages,
   deletechat,
- 
 } from "../service/chat.api";
 import {
   setChats,
   setCurrentChatId,
   setLoading,
   seterror,
-   createnewChat,
+  createnewChat,
   addNewMessage,
-  addMessages
+  addMessages,
 } from "../chat.slice";
 import { useDispatch } from "react-redux";
 
@@ -24,68 +23,76 @@ export const useChat = () => {
     dispatch(setLoading(true));
     const data = await sendMessage({ message, chatId });
     const { chat, aimessage } = data;
-    dispatch(createnewChat({
-        chatId:chat._id,
-        title:chat.title
-    }))
+    dispatch(
+      createnewChat({
+        chatId: chat._id,
+        title: chat.title,
+      }),
+    );
 
-    dispatch(addNewMessage({
-        chatId:chat._id,
+    dispatch(
+      addNewMessage({
+        chatId: chat._id,
         content: message,
-        role:'user'
-    }))
-   
-    dispatch(addNewMessage({
-        chatId:chat._id,
-        content:aimessage.message,
-        role:aimessage.role
-    }))
+        role: "user",
+      }),
+    );
 
-    dispatch(setCurrentChatId(chat._id))
+    dispatch(
+      addNewMessage({
+        chatId: chat._id,
+        content: aimessage.message,
+        role: aimessage.role,
+      }),
+    );
 
+    dispatch(setCurrentChatId(chat._id));
   }
 
   async function hanglegetChats() {
-    dispatch(setLoading(true))
+    dispatch(setLoading(true));
 
-    const data=await getChats()
-   const {chats}=data
-   dispatch(setChats(chats.reduce((acc,chat)=>{
-    acc[chat._id]={
-      id:chat._id,
-      title:chat.title,
-      message:[],
-      lastUpdated:chat.updateAt,
-    }
-    return acc
-   },{})))
-dispatch(setLoading(false))
-    
+    const data = await getChats();
+    const { chats } = data;
+    dispatch(
+      setChats(
+        chats.reduce((acc, chat) => {
+          acc[chat._id] = {
+            id: chat._id,
+            title: chat.title,
+            message: [],
+            lastUpdated: chat.updateAt,
+          };
+          return acc;
+        }, {}),
+      ),
+    );
+    dispatch(setLoading(false));
   }
 
   async function handleOpenChats(chatId) {
-    const data=await getMessages(chatId)
-    const {message}=data
+    const data = await getMessages(chatId);
+    const { message } = data;
 
-    const formetedmessages=message.map(msg=>({
-      content:msg.content,
-      role:msg.role
-    }))
+    const formetedmessages = message.map((msg) => ({
+      content: msg.content,
+      role: msg.role,
+    }));
 
-    dispatch(addMessages({
-      chatId,
-      message:formetedmessages
-    }))
+    dispatch(
+      addMessages({
+        chatId,
+        message: formetedmessages,
+      }),
+    );
 
-    dispatch(setCurrentChatId(chatId))
-
+    dispatch(setCurrentChatId(chatId));
   }
-
 
   return {
     initializeSocketConnection,
     handlesendMessage,
     hanglegetChats,
-    handleOpenChats
+    handleOpenChats,
   };
 };
