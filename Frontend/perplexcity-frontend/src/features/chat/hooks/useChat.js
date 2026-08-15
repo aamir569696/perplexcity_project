@@ -22,17 +22,27 @@ export const useChat = () => {
   async function handlesendMessage({ message, chatId }) {
     dispatch(setLoading(true));
     const data = await sendMessage({ message, chatId });
-    const { chat, aimessage } = data;
+    console.log("BACKEND RESPONSE:", data);
+
+    const { chat, aiMessage } = data;
+
+    const realchatId = chat?._id || aiMessage.chat;
+
+    if (!chat) {
+  console.error("Chat is null:", data);
+  return;
+}
+
     dispatch(
       createnewChat({
-        chatId: chat._id,
+        chatId: realchatId,
         title: chat.title,
       }),
     );
 
     dispatch(
       addNewMessage({
-        chatId: chat._id,
+        chatId: realchatId,
         content: message,
         role: "user",
       }),
@@ -40,13 +50,13 @@ export const useChat = () => {
 
     dispatch(
       addNewMessage({
-        chatId: chat._id,
-        content: aimessage.message,
-        role: aimessage.role,
+        chatId: realchatId,
+        content: aiMessage.message,
+        role: aiMessage.role,
       }),
     );
 
-    dispatch(setCurrentChatId(chat._id));
+    dispatch(setCurrentChatId(realchatId));
   }
 
   async function hanglegetChats() {

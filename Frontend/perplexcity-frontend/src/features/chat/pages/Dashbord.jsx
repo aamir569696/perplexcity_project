@@ -19,7 +19,7 @@ const Dashboard = () => {
 
   const activeChat = currentChatId ? chats[currentChatId] : null;
 
-  const messages = activeChat?.message || [];
+  const messages = activeChat?.messages || [];
 
   const startNewChat = () => {
     dispatch(setCurrentChatId(null));
@@ -204,10 +204,7 @@ const Dashboard = () => {
                       if (e.key === "Enter" && !e.shiftKey) {
                         e.preventDefault();
                         e.currentTarget.form?.requestSubmit();
-                        handlesendMessage({
-                          message: content,
-                          chatId: currentChatId,
-                        });
+  
                       }
                     }}
                     placeholder="Ask anything..."
@@ -289,10 +286,7 @@ const Dashboard = () => {
                       if (e.key === "Enter" && !e.shiftKey) {
                         e.preventDefault();
                         e.currentTarget.form?.requestSubmit();
-                        sendMessage({
-                          message: content,
-                          chatId: currentChatId,
-                        });
+                      
                       }
                     }}
                     placeholder="Ask anything..."

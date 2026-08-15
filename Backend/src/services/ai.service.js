@@ -26,19 +26,42 @@ export async function generateTtile(message) {
   return response.text;
 }
 
+// export async function generateResponse(messages) {
+
+//    if (!messages || messages.length === 0) {
+//     throw new Error("Messages array is empty");
+//   }
+
+//   const response = await GeminiModel.invoke(messages.map ((msg)=>{
+//     if(msg.role === 'user'){
+//       return new HumanMessage(msg.content);
+//     }else if(msg.role === 'assistant'){
+//       return new AIMessage(msg.content);
+//     }
+//   })  );
+
+//   return response.text;
+// }
 export async function generateResponse(messages) {
-
-   if (!messages || messages.length === 0) {
-    throw new Error("Messages array is empty");
-  }
-
-  const response = await GeminiModel.invoke(messages.map ((msg)=>{
-    if(msg.role === 'user'){
-      return new HumanMessage(msg.content);
-    }else if(msg.role === 'assistant'){
-      return new AIMessage(msg.content);
+  try {
+    if (!messages || messages.length === 0) {
+      throw new Error("Messages array is empty");
     }
-  })  );
 
-  return response.text;
+    const response = await GeminiModel.invoke(
+      messages.map((msg) => {
+        if (msg.role === "user") {
+          return new HumanMessage(msg.content);
+        } else if (msg.role === "assistant") {
+          return new AIMessage(msg.content);
+        }
+      })
+    );
+
+    return response.text;
+
+  } catch (error) {
+    console.error("GEMINI FULL ERROR:", error);
+    throw error;
+  }
 }
