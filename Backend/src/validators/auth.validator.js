@@ -2,13 +2,41 @@ import { body, validationResult } from "express-validator";
 
 export function validate(req, res, next) {
   const errors = validationResult(req);
-
+console.log("VALIDATION ERRORS:", errors.array());
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
   next();
 }
+
+// export const registerValidation = [
+//   body("username")
+//     .trim()
+//     .notEmpty()
+//     .withMessage("Username is required")
+//     .isLength({ min: 5 })
+//     .withMessage("Username must be at least 5 characters long")
+//     .matches(/^[a-zA-Z0-9]+$/)
+//     .withMessage("Username must contain only alphanumeric characters"),
+
+//   body("email")
+//   .trim()
+//   .notEmpty()
+//   .withMessage("Email is required")
+//   .isEmail()
+//   .withMessage("Invalid email format"),
+
+//   body("password")
+//     .notEmpty()
+//     .withMessage("Password is required")
+//     .isLength({ min: 8 })
+//     .withMessage("Password must be at least 8 characters long"),
+
+//   validate,
+
+// ];
+
 
 export const registerValidation = [
   body("username")
@@ -25,8 +53,6 @@ export const registerValidation = [
     .notEmpty()
     .withMessage("Email is required")
     .isEmail()
-    .withMessage("Invalid email format")
-    .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
     .withMessage("Invalid email format"),
 
   body("password")
@@ -36,7 +62,6 @@ export const registerValidation = [
     .withMessage("Password must be at least 8 characters long"),
 
   validate,
-
 ];
 
 

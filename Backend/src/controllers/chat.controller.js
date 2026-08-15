@@ -9,7 +9,15 @@ export async function sendMessage(req, res) {
   let title = null;
 
   if (!chatId) {
-    title = await generateTtile(message);
+
+    //title = await generateTtile(message);  title original gemini
+
+      title =
+    process.env.MOCK_AI === "true"
+      ? "Test Chat"
+      : await generateTtile(message);
+
+
     console.log("Generated title:", title);
     chat = await ChatModel.create({
       user: req.user.id,
@@ -31,7 +39,17 @@ export async function sendMessage(req, res) {
       .json({ error: "Messages array required in request body" });
   }
 
-  const result = await generateResponse(messages);
+ // const result = await generateResponse(messages); replasing orginal gemini api
+
+ let result;
+
+if (process.env.MOCK_AI === "true") {
+  result = `Test AI response for: ${message}`;
+} else {
+  result = await generateResponse(messages);
+}
+
+
 
   console.log("Messages in chat:", messages);
 

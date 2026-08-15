@@ -9,51 +9,86 @@ import { sendEmail } from "../services/mail.service.js";
 // @body: { username: String, email: String, password: String }
 
 export async function registerUser(req, res) {
-  const { username, email, password } = req.body;
+  try {
+    const { username, email, password } = req.body;
 
-  const isUserExist = await UserModel.findOne({
-    $or: [{ username: username }, { email: email }],
-  });
-  if (isUserExist) {
-    return res.status(400).json({ message: "User already exists" });
+    const isUserExist = await UserModel.findOne({
+      $or: [{ username }, { email }],
+    });
+
+    if (isUserExist) {
+      return res.status(400).json({
+        message: "User already exists",
+        success: false,
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await UserModel.create({
+      username,
+      email,
+      password: hashedPassword,
+    });
+
+    // Email verification token
+    const emailVerificationToken = jwt.sign(
+      { email: newUser.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    // User authentication token
+    const token = jwt.sign(
+      {
+        id: newUser._id,
+        email: newUser.email,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    // Send verification email
+    await sendEmail({
+      to: email,
+      subject: "Welcome to our app! Please verify your email",
+
+      html: `
+        <p>Hi ${username},</p>
+
+        <p>Please verify your email by clicking the following link:</p>
+
+        <a href="http://localhost:3000/api/auth/verify-email?token=${emailVerificationToken}">
+          Verify Email
+        </a>
+
+        <p>If you did not create an account, please ignore this email.</p>
+
+        <p>Best regards,<br>The Perplexity Team</p>
+      `,
+    });
+
+    return res.status(201).json({
+      message: "User registered successfully",
+      success: true,
+
+      token,
+
+      user: {
+        id: newUser._id,
+        email: newUser.email,
+        username: newUser.username,
+      },
+    });
+
+  } catch (error) {
+    console.log("REGISTER CONTROLLER ERROR:", error);
+
+    return res.status(500).json({
+      message: "Registration failed",
+      success: false,
+    });
   }
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const newUser = await UserModel.create({
-    username,
-    email,
-    password: hashedPassword,
-  });
-
-  const emailVerificationToken = jwt.sign(
-    { email: newUser.email },
-    process.env.JWT_SECRET,
-  );
-
-  await sendEmail({
-    to: email,
-    subject: "welcome to our app! Please verify your email",
-
-    html: `
- 
-    <p>Hi ${username},</p>
-     
-    <p>Please verify your email by clicking the following link: 
-    <a href="http://localhost:3000/api/auth/verify-email?token=${emailVerificationToken}">
-    Verify Email</a>
-    </p>
-     <p>If you did not create an account, please ignore this email.</p>
-                <p>Best regards,<br>The Perplexity Team</p>
-    `,
-  });
-
-  return res.status(201).json({
-    message: "User registered successfully",
-    newUser: {
-      id: newUser._id,
-      email: newUser.email,
-      username: newUser.username,
-    },
-  });
 }
 // @description: Login a user and return a JWT token
 // @route: POST /api/auth/login
@@ -100,6 +135,7 @@ export async function loginUser(req, res) {
 
     return res.status(200).json({
       message: "Login successful",
+      token:token,
       user: {
         id: user._id,
         email: user.email,

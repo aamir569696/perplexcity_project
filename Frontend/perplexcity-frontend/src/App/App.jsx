@@ -6,11 +6,13 @@ import { useEffect } from 'react';
 
 const App = () => {
   const auth = useAuth();
-  useEffect(() => {
-    auth.handleGetMe();
-  }, []);
 
-  
+ useEffect(() => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    auth.handleGetMe();
+  }
+}, []);
 
   return <RouterProvider router={router} />;
 };

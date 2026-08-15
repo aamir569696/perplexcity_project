@@ -8,10 +8,22 @@ export function useAuth() {
   async function handleRegister({ username, email, password }) {
     try {
       dispatch(setLoading(true));
+
       const data = await registerUser({ username, email, password });
-        dispatch(setUser(data));
+
+          console.log("REGISTER RESPONSE:", data);
+
+    localStorage.setItem("token", data.token);
+
+    dispatch(setUser(data.user));
+
+      return true;
     } catch (error) {
-      dispatch(setError(error.response?.data?.message || "Register faild"));
+      console.log("REGISTER ERROR:", error.response?.data);
+
+      dispatch(setError(error.response?.data?.message || "Register failed"));
+
+      return false;
     } finally {
       dispatch(setLoading(false));
     }
@@ -20,17 +32,14 @@ export function useAuth() {
   async function handleLogin(email, password) {
     try {
       dispatch(setLoading(true));
-      console.log("Before loginUser");
       const data = await loginUser({ email, password });
-      console.log('after');
+      localStorage.setItem("token", data.token);
       dispatch(setUser(data));
       return true; // Indicate successful login
-
     } catch (error) {
       dispatch(setError(error.response?.data?.message || "Login faild"));
       console.log(error);
       return false; // Indicate failed login
-      
     } finally {
       dispatch(setLoading(false));
     }
@@ -48,11 +57,9 @@ export function useAuth() {
     }
   }
 
-
-  return{
-
+  return {
     handleRegister,
     handleLogin,
-    handleGetMe
-  }
+    handleGetMe,
+  };
 }
