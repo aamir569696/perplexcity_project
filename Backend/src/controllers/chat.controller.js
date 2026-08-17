@@ -3,72 +3,110 @@ import ChatModel from "../models/chat.model.js";
 import MessageModel from "../models/message.model.js";
 
 export async function sendMessage(req, res) {
-  const { message, chat: chatId } = req.body;
+  try {
+    const { message, chat: chatId } = req.body;
 
-  let chat = null;
-  let title = null;
+    let chat;
+    let title = null;
 
-  if (!chatId) {
-
-    //title = await generateTtile(message);  title original gemini
-
+    // NEW CHAT
+    
+    if (!chatId) {
       title =
-    process.env.MOCK_AI === "true"
-      ? "Test Chat"
-      : await generateTtile(message);
+        process.env.MOCK_AI === "true"
+          ? "Test Chat"
+          : await generateTtile(message);
 
+      console.log("Generated title:", title);
 
-    console.log("Generated title:", title);
-    chat = await ChatModel.create({
-      user: req.user.id,
-      title: title,
+      chat = await ChatModel.create({
+        user: req.user.id,
+        title,
+      });
+    }
+
+    // =========================
+    // EXISTING CHAT
+    // Check ownership
+    // =========================
+    else {
+      chat = await ChatModel.findOne({
+        _id: chatId,
+        user: req.user.id,
+      });
+
+      if (!chat) {
+        return res.status(404).json({
+          success: false,
+          message: "Chat not found or unauthorized",
+        });
+      }
+    }
+
+    // Current user's verified chat ID
+    const currentChatId = chat._id;
+
+    // =========================
+    // SAVE USER MESSAGE
+    // =========================
+    const userMessage = await MessageModel.create({
+      chat: currentChatId,
+      content: message,
+      role: "user",
+    });
+
+    // =========================
+    // GET CHAT MESSAGES
+    // =========================
+    const messages = await MessageModel.find({
+      chat: currentChatId,
+    });
+
+    if (!messages.length) {
+      return res.status(400).json({
+        success: false,
+        message: "Messages array required",
+      });
+    }
+
+    // =========================
+    // AI RESPONSE
+    // =========================
+    let result;
+
+    if (process.env.MOCK_AI === "true") {
+      result = `Test AI response for: ${message}`;
+    } else {
+      result = await generateResponse(messages);
+    }
+
+    // =========================
+    // SAVE AI MESSAGE
+    // =========================
+    const aiMessage = await MessageModel.create({
+      chat: currentChatId,
+      content: result,
+      role: "assistant",
+    });
+
+    return res.status(200).json({
+      success: true,
+      geminiMessage: result,
+      title: chat.title,
+      chat,
+      userMessage,
+      aiMessage,
+    });
+
+  } catch (error) {
+    console.error("SEND MESSAGE ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to send message",
     });
   }
-
-  const userMessage = await MessageModel.create({
-    chat: chatId || chat._id,
-    content: message,
-    role: "user",
-  });
-
-  const messages = await MessageModel.find({ chat: chatId || chat._id });
-
-  if (!messages || messages.length === 0) {
-    return res
-      .status(400)
-      .json({ error: "Messages array required in request body" });
-  }
-
- // const result = await generateResponse(messages); replasing orginal gemini api
-
- let result;
-
-if (process.env.MOCK_AI === "true") {
-  result = `Test AI response for: ${message}`;
-} else {
-  result = await generateResponse(messages);
 }
-
-
-
-  console.log("Messages in chat:", messages);
-
-  const aiMessage = await MessageModel.create({
-    chat: chatId || chat._id,
-    content: result,
-    role: "assistant",
-  });
-
-  res.json({
-    geminiMessage: result,
-    title,
-    chat,
-    aiMessage,
-  });
-
-  // console.log("Received message:", message);
-}
-
 export async function getChats(req, res) {
   const { user } = req.user;
 
@@ -81,24 +119,37 @@ export async function getChats(req, res) {
 }
 
 export async function getMessages(req, res) {
-  const { chatId } = req.params;
+  try {
+    const { chatId } = req.params;
 
-  const chat = await ChatModel.findById({
-    _id: chatId,
-    user: req.user.id,
-  });
-  if (!chat) {
-    return res.status(404).json({
-      message: "Chat not found",
+    const chat = await ChatModel.findOne({
+      _id: chatId,
+      user: req.user.id,
+    });
+
+    if (!chat) {
+      return res.status(404).json({
+        success: false,
+        message: "Chat not found or unauthorized",
+      });
+    }
+
+    const messages = await MessageModel.find({
+      chat: chatId,
+    }).sort({ createdAt: 1 });
+
+    return res.status(200).json({
+      success: true,
+      message: "Messages retrieved successfully",
+      messages,
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get messages",
     });
   }
-
-  const messages = await MessageModel.find({ chat: chatId });
-
-  res.status(200).json({
-    message: "Messages retrieved successfully",
-    messages,
-  });
 }
 
 export async function deleteChat(req, res) {

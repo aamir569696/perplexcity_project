@@ -3,6 +3,8 @@ import { useChat } from "../hooks/useChat";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentChatId } from "../chat.slice";
 
+
+//localStorage.removeItem("token")
 /* =========================================================
    ICONS
 ========================================================= */
@@ -141,12 +143,10 @@ const Dashboard = () => {
   const { chats, currentChatId } = useSelector((state) => state.chat);
   const { user } = useSelector((state) => state.auth);
   const messagesEndRef = useRef(null);
-  console.log(user);
-  /* =======================================================
-     DATA
-  ======================================================= */
-
-  
+  //console.log(user);
+ 
+   //  DATA
+ 
   const [darkMode, setDarkMode] = useState(true);
   const [message, setMessage] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -188,9 +188,9 @@ useEffect(() => {
   }
 }, [messages]);
 
-  /* =======================================================
-     AUTO RESIZE TEXTAREA
-  ======================================================= */
+ 
+    // AUTO RESIZE TEXTAREA
+
 
   useLayoutEffect(() => {
     const textarea = textareaRef.current;
@@ -207,9 +207,9 @@ useEffect(() => {
       textarea.scrollHeight > MAX_INPUT_HEIGHT ? "auto" : "hidden";
   }, [message, activeChat]);
 
-  /* =======================================================
-     NEW CHAT
-  ======================================================= */
+  
+     //NEW CHAT
+
 
   const startNewChat = () => {
     dispatch(setCurrentChatId(null));
@@ -217,10 +217,9 @@ useEffect(() => {
     setSidebarOpen(false);
   };
 
-  /* =======================================================
-     SEND MESSAGE
-  ======================================================= */
-
+  
+   //  SEND MESSAGE
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -241,7 +240,7 @@ useEffect(() => {
   };
 
   /* =======================================================
-     OPEN OLD CHAT
+    // OPEN OLD CHAT
   ======================================================= */
 
   const openChat = async (chatId) => {
@@ -908,7 +907,7 @@ useEffect(() => {
             <div className="min-w-0">
               <p className="truncate text-[12px] font-medium">
                 {" "}
-                {user?.user?.username || "Your Account"}
+                {user?.username || "Your Account"}
               </p>
 
               <p
@@ -1031,7 +1030,7 @@ useEffect(() => {
                 flex-col
                 items-center
                 justify-center
-                overflow-y-auto
+               
                 py-6
                 sm:py-10
               "
@@ -1291,6 +1290,7 @@ useEffect(() => {
                         disabled:scale-100
                         disabled:opacity-30
                         disabled:grayscale
+                        cursor-pointer
                       "
                       aria-label="Send message"
                     >
@@ -1368,7 +1368,7 @@ useEffect(() => {
 
               <div
                 className="
-                  chat-scroll
+                  scrollbar-none
                   mx-auto flex min-h-0
                   w-full max-w-3xl
                   flex-1

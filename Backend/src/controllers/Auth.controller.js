@@ -35,18 +35,18 @@ export async function registerUser(req, res) {
     const emailVerificationToken = jwt.sign(
       { email: newUser.email },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "1d" },
     );
 
-    // User authentication token
-    const token = jwt.sign(
-      {
-        id: newUser._id,
-        email: newUser.email,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    // // User authentication token
+    // const token = jwt.sign(
+    //   {
+    //     id: newUser._id,
+    //     email: newUser.email,
+    //   },
+    //   process.env.JWT_SECRET,
+    //   { expiresIn: "7d" }
+    // );
 
     // Send verification email
     await sendEmail({
@@ -69,18 +69,15 @@ export async function registerUser(req, res) {
     });
 
     return res.status(201).json({
-      message: "User registered successfully",
+      message:
+        "Registration successful. Please verify your email before logging in.",
       success: true,
-
-      token,
-
       user: {
         id: newUser._id,
         email: newUser.email,
         username: newUser.username,
       },
     });
-
   } catch (error) {
     console.log("REGISTER CONTROLLER ERROR:", error);
 
@@ -131,11 +128,11 @@ export async function loginUser(req, res) {
         expiresIn: "15d",
       },
     );
-    res.cookie("token", token)
+    res.cookie("token", token);
 
     return res.status(200).json({
       message: "Login successful",
-      token:token,
+      token: token,
       user: {
         id: user._id,
         email: user.email,
@@ -155,22 +152,19 @@ export async function loginUser(req, res) {
 // @access: Private
 //query: { token: String }
 export async function getMe(req, res) {
-
   const userId = req.user.id;
 
   const user = await UserModel.findById(userId).select("-password");
 
   if (!user) {
-    return res.status(404).json({ message: "User not found",success: false });
+    return res.status(404).json({ message: "User not found", success: false });
   }
 
   return res.status(200).json({
     message: "User retrieved successfully",
     success: true,
-    user
-  })
-
-
+    user,
+  });
 }
 
 // @description: Verify user's email address

@@ -5,12 +5,23 @@ const chatSlice = createSlice({
 
   initialState: {
     chats: {},
-   currentChatId: localStorage.getItem("currentChatId") || null,
+   currentChatId:null,
     isLoading: false,
     error: null,
   },
 
   reducers: {
+
+ resetChat: (state) => {
+    state.chats = {};
+    state.currentChatId = null;
+    state.isLoading = false;
+    state.error = null;
+
+    localStorage.removeItem("currentChatId");
+  },
+
+
     // New chat create karo
     createnewChat: (state, action) => {
       const { chatId, title } = action.payload;
@@ -98,6 +109,7 @@ export const {
   createnewChat,
   addNewMessage,
   addMessages,
+  resetChat
 } = chatSlice.actions;
 
 export default chatSlice.reducer;
