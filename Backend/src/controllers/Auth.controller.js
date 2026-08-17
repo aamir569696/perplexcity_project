@@ -2,6 +2,7 @@ import UserModel from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { sendEmail } from "../services/mail.service.js";
+import { json } from "express";
 
 // @description: Register a new user
 // @route: POST /api/auth/register
@@ -194,4 +195,25 @@ export async function verifyEmail(req, res) {
   `;
 
   res.status(200).send(htmlContent);
+}
+
+export async function logoutUser(req,res) {
+  
+ try{ 
+   res.clearCokie('token');
+
+  return res.status(200).json({
+    success:true,
+    message:'Logout Succesfully'
+   });
+
+  }catch(error){
+
+    return res.status(500).json({
+        success: false,
+      message: "Logout failed",
+    });
+
+ }
+
 }

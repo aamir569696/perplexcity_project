@@ -1,45 +1,48 @@
 import { useDispatch } from "react-redux";
-import { registerUser, loginUser, getMeUser } from "../service/auth.api";
+import {
+  registerUser,
+  loginUser,
+  getMeUser,
+  logoutUser,
+} from "../service/auth.api";
 import { setUser, setLoading, setError } from "../auth.slice";
 import { resetChat } from "../../chat/chat.slice";
 export function useAuth() {
   const dispatch = useDispatch();
 
- async function handleRegister({ username, email, password }) {
-  try {
-    dispatch(setLoading(true));
+  async function handleRegister({ username, email, password }) {
+    try {
+      dispatch(setLoading(true));
 
-    const data = await registerUser({
-      username,
-      email,
-      password,
-    });
+      const data = await registerUser({
+        username,
+        email,
+        password,
+      });
 
-    console.log("REGISTER RESPONSE:", data);
+      console.log("REGISTER RESPONSE:", data);
 
-    // Register ke baad user ko login NAHI karna
-    // Token save NAHI karna
-    // Redux user set NAHI karna
+      // Register ke baad user ko login NAHI karna
+      // Token save NAHI karna
+      // Redux user set NAHI karna
 
-    return true;
-  } catch (error) {
-    console.log("REGISTER ERROR:", error.response?.data);
+      return true;
+    } catch (error) {
+      console.log("REGISTER ERROR:", error.response?.data);
 
-    dispatch(
-      setError(error.response?.data?.message || "Register failed")
-    );
+      dispatch(setError(error.response?.data?.message || "Register failed"));
 
-    return false;
-  } finally {
-    dispatch(setLoading(false));
+      return false;
+    } finally {
+      dispatch(setLoading(false));
+    }
   }
-}
 
   async function handleLogin(email, password) {
     try {
       dispatch(setLoading(true));
       // Purane user ki chats clear
- dispatch(resetChat());
+      dispatch(resetChat());
       const data = await loginUser({ email, password });
 
       console.log("LOGIN RESPONSE:", data);
@@ -95,9 +98,27 @@ export function useAuth() {
     }
   }
 
+  async function handleLogout(params) {
+    try {
+      dispatch(setLoading(ture));
+      await logoutUser();
+      localStorage.removeItem("token");
+      dispatch(setUser(null));
+      return true;
+
+    } catch (error) {
+      dispatch(setError(error.response?.data?.message || "Logout failed"));
+      return false;
+
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+
   return {
     handleRegister,
     handleLogin,
     handleGetMe,
+    handleLogout
   };
 }

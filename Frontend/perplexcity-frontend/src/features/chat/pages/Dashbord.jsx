@@ -3,7 +3,6 @@ import { useChat } from "../hooks/useChat";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentChatId } from "../chat.slice";
 
-
 //localStorage.removeItem("token")
 /* =========================================================
    ICONS
@@ -63,6 +62,20 @@ const IconMoon = (props) => (
       d="M16.2 12.1A6.7 6.7 0 0 1 7.9 3.8a7.2 7.2 0 1 0 8.3 8.3Z"
       stroke="currentColor"
       strokeWidth="1.4"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+//logout icon
+
+const IconLogout = (props) => (
+  <svg viewBox="0 0 20 20" fill="none" {...props}>
+    <path
+      d="M7.5 17H4.8A1.8 1.8 0 0 1 3 15.2V4.8A1.8 1.8 0 0 1 4.8 3h2.7M13 14l4-4-4-4M17 10H7.5"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
       strokeLinejoin="round"
     />
   </svg>
@@ -138,15 +151,20 @@ const IconMessage = (props) => (
 const Dashboard = () => {
   const dispatch = useDispatch();
 
-  const { handlesendMessage, hanglegetChats, handleOpenChats } = useChat();
+  const {
+    handlesendMessage,
+    hanglegetChats,
+    handleOpenChats,
+    handleDeleteChat,
+  } = useChat();
 
   const { chats, currentChatId } = useSelector((state) => state.chat);
   const { user } = useSelector((state) => state.auth);
   const messagesEndRef = useRef(null);
   //console.log(user);
- 
-   //  DATA
- 
+
+  //  DATA
+
   const [darkMode, setDarkMode] = useState(true);
   const [message, setMessage] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -158,39 +176,35 @@ const Dashboard = () => {
   const textareaRef = useRef(null);
 
   const MAX_INPUT_HEIGHT = 200;
+  const isLoading = useSelector((state) => state.chat.isLoading);
+  useEffect(() => {
+    hanglegetChats();
 
+    const savedChatId = localStorage.getItem("currentChatId");
 
- useEffect(() => {
-  hanglegetChats();
+    if (savedChatId) {
+      handleOpenChats(savedChatId);
+    }
+  }, []);
 
-   const savedChatId = localStorage.getItem("currentChatId");
+  //controle scroll behavior
 
-  if (savedChatId) {
-    handleOpenChats(savedChatId);
-  }
-}, []);
+  useEffect(() => {
+    const lastUserMessage = [...messages]
+      .reverse()
+      .find((msg) => msg.role === "user");
 
+    if (lastUserMessage) {
+      document
+        .getElementById(`message-${messages.lastIndexOf(lastUserMessage)}`)
+        ?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+    }
+  }, [messages]);
 
-//controle scroll behavior
-
-useEffect(() => {
-  const lastUserMessage = [...messages]
-    .reverse()
-    .find((msg) => msg.role === "user");
-
-  if (lastUserMessage) {
-    document
-      .getElementById(`message-${messages.lastIndexOf(lastUserMessage)}`)
-      ?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-  }
-}, [messages]);
-
- 
-    // AUTO RESIZE TEXTAREA
-
+  // AUTO RESIZE TEXTAREA
 
   useLayoutEffect(() => {
     const textarea = textareaRef.current;
@@ -207,9 +221,7 @@ useEffect(() => {
       textarea.scrollHeight > MAX_INPUT_HEIGHT ? "auto" : "hidden";
   }, [message, activeChat]);
 
-  
-     //NEW CHAT
-
+  //NEW CHAT
 
   const startNewChat = () => {
     dispatch(setCurrentChatId(null));
@@ -217,9 +229,19 @@ useEffect(() => {
     setSidebarOpen(false);
   };
 
-  
-   //  SEND MESSAGE
- 
+  //logout handler
+
+  const handleLogout = () => {
+    const confirmLogout = window.confirm("Are you sure you want to logout?");
+
+    if (confirmLogout) {
+      localStorage.removeItem("token");
+      window.location.href = "/login";
+    }
+  };
+
+  //  SEND MESSAGE
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -670,6 +692,7 @@ useEffect(() => {
             type="button"
             onClick={startNewChat}
             className={`
+              cursor-pointer
               group mt-4 flex w-full items-center gap-3
               rounded-xl border
               px-3.5 py-2.5
@@ -777,6 +800,7 @@ useEffect(() => {
                     type="button"
                     onClick={() => openChat(chat.id)}
                     className={`
+                      cursor-pointer
                       group relative flex w-full
                       min-w-0 items-center
                       rounded-xl
@@ -784,7 +808,7 @@ useEffect(() => {
                       text-left
                       text-[12.5px]
                       transition-all duration-200
-
+                      
                       ${
                         isActive
                           ? theme.active
@@ -803,6 +827,7 @@ useEffect(() => {
                           from-[#EFD69C]
                           to-[#96742E]
                           shadow-[0_0_10px_rgba(207,164,88,.4)]
+                        
                         "
                       />
                     )}
@@ -810,6 +835,23 @@ useEffect(() => {
                     <span className="min-w-0 flex-1 truncate">
                       {chat.title}
                     </span>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+
+                        const confirmDelete = window.confirm(
+                          "Are you sure you want to delete this chat?",
+                        );
+
+                        if (confirmDelete) {
+                          handleDeleteChat(chat.id);
+                        }
+                      }}
+                      className="text-lg cursor-pointer"
+                    >
+                      ...
+                    </button>
                   </button>
                 );
               })}
@@ -901,7 +943,7 @@ useEffect(() => {
                 text-[#0c0c0e]
               "
             >
-              U
+              YA
             </div>
 
             <div className="min-w-0">
@@ -920,6 +962,35 @@ useEffect(() => {
               </p>
             </div>
           </div>
+
+          {/* Logout */}
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className={`
+              cursor-pointer
+              mt-1 flex w-full items-center gap-3
+              rounded-xl
+              px-3.5 py-2.5
+              text-[12.5px]
+              font-medium
+              text-red-400
+              transition-all
+              hover:bg-red-500/10
+            `}
+          >
+            <span
+              className="
+                flex h-7 w-7 items-center justify-center
+                rounded-lg
+                bg-red-500/10
+              "
+            >
+              <IconLogout className="h-4 w-4" />
+            </span>
+            Logout
+          </button>
         </div>
       </aside>
 
@@ -1386,9 +1457,8 @@ useEffect(() => {
                 {messages.map((msg, index) => {
                   const isUser = msg.role === "user";
 
-                  return (
-                   
-                    <div
+                 return (
+  <div
     id={`message-${index}`}
     key={msg.id || index}
     style={{
@@ -1401,48 +1471,88 @@ useEffect(() => {
       ${isUser ? "justify-end" : "justify-start"}
     `}
   >
-                      <div
-                        className={`
-                          max-w-[92%]
-                          break-words
-                          rounded-2xl
-                          px-3.5 py-2.5
-                          text-[13.5px]
-                          leading-6
-                          shadow-sm
-                          sm:max-w-[82%]
-                          sm:px-4
-                          sm:py-3
-                          sm:text-[14.5px]
+    {/* Message + Feedback wrapper */}
+    <div className="max-w-[92%] sm:max-w-[82%]">
 
-                          ${
-                            isUser
-                              ? `
-                                bg-gradient-to-br
-                                from-[#EFD69C]
-                                via-[#CFA458]
-                                to-[#96742E]
-                                text-[#0c0c0e]
-                                shadow-[0_10px_28px_-12px_rgba(207,164,88,.55)]
-                              `
-                              : theme.message
-                          }
-                        `}
-                      >
-                        <div className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
-                          {msg.content}
-                        </div>
-                      </div>
-                    </div>
-                  );
+      {/* Message Bubble */}
+      <div
+        className={`
+          break-words
+          rounded-2xl
+          px-3.5 py-2.5
+          text-[13.5px]
+          leading-6
+          shadow-sm
+          sm:px-4
+          sm:py-3
+          sm:text-[14.5px]
 
+          ${
+            isUser
+              ? `
+                bg-gradient-to-br
+                from-[#EFD69C]
+                via-[#CFA458]
+                to-[#96742E]
+                text-[#0c0c0e]
+                shadow-[0_10px_28px_-12px_rgba(207,164,88,.55)]
+              `
+              : theme.message
+          }
+        `}
+      >
+        <div className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
+          {msg.content}
+        </div>
+      </div>
+
+      {/* Sirf AI response ke neeche feedback */}
+      {!isUser && (
+        <div className="mt-2 flex items-center gap-3 px-1">
+          <button
+            onClick={() => console.log("Liked:", msg.content)}
+            title="Good response"
+            className="cursor-pointer text-gray-400 transition hover:text-white"
+          >
+            👍🏻
+          </button>
+
+          <button
+            onClick={() => console.log("Disliked:", msg.content)}
+            title="Bad response"
+            className="cursor-pointer  text-gray-400 transition hover:text-white"
+          >
+            👎🏻
+          </button>
+
+          <button
+            onClick={() => navigator.clipboard.writeText(msg.content)}
+            title="Copy response"
+            className="cursor-pointer  text-gray-400 transition hover:text-white"
+          >
+            ⧉
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
+);
 
                 })}
 
+                {isLoading && (
+                  <div className="flex items-center gap-2 px-4 py-3">
+                    <div className="flex gap-1">
+                      <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400"></span>
+                      <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:150ms]"></span>
+                      <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:300ms]"></span>
+                    </div>
 
-
-
-
+                    <span className="text-sm text-gray-400">
+                      AI is thinking...
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* =================================================

@@ -32,3 +32,8 @@ export async function getMeUser() {
     const response= await api.get("/api/auth/getme")
     return response.data
 }
+
+export async function logoutUser() {
+  const response=await api.post("/api/auth/logout")
+ return response.data
+}

@@ -1,5 +1,5 @@
 import express from "express"; 
-import { registerUser,verifyEmail,loginUser,getMe } from "../controllers/Auth.controller.js";
+import { registerUser,verifyEmail,loginUser,getMe,logoutUser } from "../controllers/Auth.controller.js";
 import { registerValidation, loginValidation } from "../validators/auth.validator.js";
 import {authMiddleware} from "../middlewares/auth.middleware.js";
 const authRouter = express.Router();
@@ -33,6 +33,11 @@ authRouter.post("/login",loginValidation,loginUser)
 // @query: { token: String }
 // @middleware: authMiddleware
 authRouter.get("/getme",authMiddleware,getMe)
+
+//logout api
+
+
+authRouter.post('/logout',logoutUser)
 
 
 export default authRouter;

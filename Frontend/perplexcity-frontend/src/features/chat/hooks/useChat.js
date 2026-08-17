@@ -148,10 +148,51 @@ async function handlesendMessage({ message, chatId }) {
     dispatch(setCurrentChatId(chatId));
   }
 
+  async function handleDeleteChat(chatId) {
+  try {
+    dispatch(setLoading(true));
+
+    await deletechat(chatId);
+
+    // Redux se deleted chat remove karo
+    const data = await getChats();
+    const { chats } = data;
+
+    dispatch(
+      setChats(
+        chats.reduce((acc, chat) => {
+          acc[chat._id] = {
+            id: chat._id,
+            title: chat.title,
+            messages: [],
+            lastUpdated: chat.updatedAt,
+          };
+
+          return acc;
+        }, {}),
+      ),
+    );
+
+    // Agar deleted chat currently open thi
+    if (localStorage.getItem("currentChatId") === chatId) {
+      dispatch(setCurrentChatId(null));
+    }
+
+  } catch (error) {
+    console.error("Delete chat failed:", error);
+    dispatch(
+      seterror(error.response?.data?.message || "Failed to delete chat"),
+    );
+  } finally {
+    dispatch(setLoading(false));
+  }
+}
+
   return {
     initializeSocketConnection,
     handlesendMessage,
     hanglegetChats,
     handleOpenChats,
+    handleDeleteChat
   };
 };
