@@ -1,4 +1,5 @@
 import { initializeSocketConnection } from "../service/chat.socket";
+import toast from "react-hot-toast";
 import {
   sendMessage,
   getChats,
@@ -55,20 +56,28 @@ export const useChat = () => {
   //   dispatch(setCurrentChatId(realchatId));
   // }
 
-async function handlesendMessage({ message, chatId }) {
+async function handlesendMessage({
+  message,
+  chatId,
+  selectedImage,
+}) {
   try {
     dispatch(setLoading(true));
 
-    const data = await sendMessage({ message, chatId });
+    const data = await sendMessage({
+      message,
+      chatId,
+      selectedImage,
+    });
 
     console.log("BACKEND RESPONSE:", data);
 
-    const { chat, aiMessage } = data;
+    const { chat, aiMessage, userMessage } = data;
 
     // New chat ho to backend ka ID, warna existing chatId
     const realChatId = chat ? chat._id : chatId;
 
-      // Sirf NEW chat ko Redux mein create karo
+    // Sirf NEW chat ko Redux mein create karo
     if (chat) {
       dispatch(
         createnewChat({
@@ -82,8 +91,9 @@ async function handlesendMessage({ message, chatId }) {
     dispatch(
       addNewMessage({
         chatId: realChatId,
-        content: message,
-        role: "user",
+        content: userMessage.content,
+        role: userMessage.role,
+        image: userMessage.image,
       })
     );
 
@@ -100,8 +110,17 @@ async function handlesendMessage({ message, chatId }) {
     dispatch(setCurrentChatId(realChatId));
 
   } catch (error) {
-    console.error("Message send failed:", error);
-    throw error;
+  console.error("Message send failed:", error);
+
+  const errorMessage =
+    error.response?.data?.message ||
+    "Message send nahi ho saka. Dobara try karein.";
+
+  toast.error(errorMessage);
+
+  dispatch(seterror(errorMessage));
+
+  throw error;
   } finally {
     dispatch(setLoading(false));
   }
@@ -119,8 +138,8 @@ async function handlesendMessage({ message, chatId }) {
           acc[chat._id] = {
             id: chat._id,
             title: chat.title,
-            message: [],
-            lastUpdated: chat.updateAt,
+            messages: [],
+            lastUpdated: chat.updatedAt,
           };
           return acc;
         }, {}),
@@ -129,25 +148,42 @@ async function handlesendMessage({ message, chatId }) {
     dispatch(setLoading(false));
   }
 
-  async function handleOpenChats(chatId) {
+ async function handleOpenChats(chatId) {
+  try {
+    dispatch(setLoading(true));
+
     const data = await getMessages(chatId);
     const { messages } = data;
 
-    const formetedmessages = messages.map((msg) => ({
+    const formattedMessages = messages.map((msg) => ({
       content: msg.content,
       role: msg.role,
+      image: msg.image || null,
     }));
 
     dispatch(
       addMessages({
         chatId,
-        messages: formetedmessages,
-      }),
+        messages: formattedMessages,
+      })
     );
 
     dispatch(setCurrentChatId(chatId));
-  }
 
+  } catch (error) {
+  console.error("Get messages failed:", error);
+
+  const errorMessage =
+    error.response?.data?.message ||
+    "Messages load nahi ho sake.";
+
+  dispatch(seterror(errorMessage));
+
+  toast.error(errorMessage);
+  } finally {
+    dispatch(setLoading(false));
+  }
+}
   async function handleDeleteChat(chatId) {
   try {
     dispatch(setLoading(true));
@@ -179,10 +215,15 @@ async function handlesendMessage({ message, chatId }) {
     }
 
   } catch (error) {
-    console.error("Delete chat failed:", error);
-    dispatch(
-      seterror(error.response?.data?.message || "Failed to delete chat"),
-    );
+  console.error("Delete chat failed:", error);
+
+  const errorMessage =
+    error.response?.data?.message ||
+    "Chat delete nahi ho saka.";
+
+  dispatch(seterror(errorMessage));
+
+  toast.error(errorMessage);
   } finally {
     dispatch(setLoading(false));
   }

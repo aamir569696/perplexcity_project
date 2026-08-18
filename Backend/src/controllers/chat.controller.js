@@ -1,10 +1,44 @@
 import { generateResponse, generateTtile } from "../services/ai.service.js";
 import ChatModel from "../models/chat.model.js";
 import MessageModel from "../models/message.model.js";
+import fs from "fs";
+import path from "path";
 
 export async function sendMessage(req, res) {
   try {
+
+     console.log("BODY:", req.body);
+    console.log("FILE:", req.file);
     const { message, chat: chatId } = req.body;
+
+    let imageUrl = null;
+
+if (req.file) {
+  const uploadDir = path.join(process.cwd(), "uploads");
+
+  // uploads folder ensure karo
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+
+  const extension = path.extname(req.file.originalname);
+
+  const fileName = `${Date.now()}-${Math.round(
+    Math.random() * 1e9
+  )}${extension}`;
+
+  const filePath = path.join(uploadDir, fileName);
+
+  fs.writeFileSync(filePath, req.file.buffer);
+
+ imageUrl = `${process.env.SERVER_URL}/uploads/${fileName}`;
+
+  console.log("IMAGE SAVED:", imageUrl);
+}
+
+ console.log("TEXT MESSAGE:", message);
+    console.log("UPLOADED FILE:", req.file);
+
 
     let chat;
     let title = null;
@@ -50,11 +84,11 @@ export async function sendMessage(req, res) {
     // SAVE USER MESSAGE
     // =========================
     const userMessage = await MessageModel.create({
-      chat: currentChatId,
-      content: message,
-      role: "user",
-    });
-
+  chat: currentChatId,
+  content: message || "",
+  role: "user",
+  image: imageUrl,
+});
     // =========================
     // GET CHAT MESSAGES
     // =========================
@@ -107,6 +141,9 @@ export async function sendMessage(req, res) {
     });
   }
 }
+
+
+
 export async function getChats(req, res) {
   const { user } = req.user;
 

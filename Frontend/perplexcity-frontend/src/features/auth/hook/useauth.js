@@ -1,15 +1,22 @@
 import { useDispatch } from "react-redux";
+import toast from "react-hot-toast";
+
 import {
   registerUser,
   loginUser,
   getMeUser,
   logoutUser,
 } from "../service/auth.api";
+
 import { setUser, setLoading, setError } from "../auth.slice";
 import { resetChat } from "../../chat/chat.slice";
+
 export function useAuth() {
   const dispatch = useDispatch();
 
+  // =========================
+  // REGISTER
+  // =========================
   async function handleRegister({ username, email, password }) {
     try {
       dispatch(setLoading(true));
@@ -22,52 +29,75 @@ export function useAuth() {
 
       console.log("REGISTER RESPONSE:", data);
 
-      // Register ke baad user ko login NAHI karna
-      // Token save NAHI karna
-      // Redux user set NAHI karna
-
       return true;
+
     } catch (error) {
       console.log("REGISTER ERROR:", error.response?.data);
 
-      dispatch(setError(error.response?.data?.message || "Register failed"));
+      const errorMessage =
+        error.response?.data?.message ||
+        "Registration failed. Please try again.";
+
+      dispatch(setError(errorMessage));
+
+      toast.error(errorMessage);
 
       return false;
+
     } finally {
       dispatch(setLoading(false));
     }
   }
 
+  // =========================
+  // LOGIN
+  // =========================
   async function handleLogin(email, password) {
     try {
       dispatch(setLoading(true));
+
       // Purane user ki chats clear
       dispatch(resetChat());
-      const data = await loginUser({ email, password });
+
+      const data = await loginUser({
+        email,
+        password,
+      });
 
       console.log("LOGIN RESPONSE:", data);
 
       localStorage.setItem("token", data.token);
 
-      // Sirf actual user Redux mein save hoga
+      // Actual user Redux mein save
       dispatch(setUser(data.user));
 
       return true;
+
     } catch (error) {
+      console.log("LOGIN ERROR:", error.response?.data);
+
       localStorage.removeItem("token");
 
       dispatch(setUser(null));
 
-      dispatch(setError(error.response?.data?.message || "Login failed"));
+      const errorMessage =
+        error.response?.data?.message ||
+        "Login failed. Please check your credentials.";
 
-      console.log(error);
+      dispatch(setError(errorMessage));
+
+      toast.error(errorMessage);
 
       return false;
+
     } finally {
       dispatch(setLoading(false));
     }
   }
 
+  // =========================
+  // GET ME
+  // =========================
   async function handleGetMe() {
     try {
       dispatch(setLoading(true));
@@ -76,38 +106,62 @@ export function useAuth() {
 
       console.log("GET ME RESPONSE:", data);
 
-      // Backend response:
-      // { message, success, user }
       dispatch(setUser(data.user));
 
       return true;
+
     } catch (error) {
       console.log("GET ME ERROR:", error.response?.data);
 
-      // Token invalid/missing ho to local token bhi remove
+      // Invalid token
       localStorage.removeItem("token");
 
-      // Redux authentication clear
+      // Authentication clear
       dispatch(setUser(null));
 
-      dispatch(setError(error.response?.data?.message || "GetMe failed"));
+      const errorMessage =
+        error.response?.data?.message ||
+        "Session expired. Please login again.";
+
+      dispatch(setError(errorMessage));
+
+      // GetMe usually background mein hota hai,
+      // isliye toast optional rakha ja sakta hai.
+      toast.error(errorMessage);
 
       return false;
+
     } finally {
       dispatch(setLoading(false));
     }
   }
 
-  async function handleLogout(params) {
+  // =========================
+  // LOGOUT
+  // =========================
+  async function handleLogout() {
     try {
-      dispatch(setLoading(ture));
+      dispatch(setLoading(true));
+
       await logoutUser();
+
       localStorage.removeItem("token");
+
       dispatch(setUser(null));
+
       return true;
 
     } catch (error) {
-      dispatch(setError(error.response?.data?.message || "Logout failed"));
+      console.log("LOGOUT ERROR:", error.response?.data);
+
+      const errorMessage =
+        error.response?.data?.message ||
+        "Logout failed. Please try again.";
+
+      dispatch(setError(errorMessage));
+
+      toast.error(errorMessage);
+
       return false;
 
     } finally {
@@ -119,6 +173,6 @@ export function useAuth() {
     handleRegister,
     handleLogin,
     handleGetMe,
-    handleLogout
+    handleLogout,
   };
 }

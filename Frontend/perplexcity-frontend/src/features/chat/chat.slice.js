@@ -38,26 +38,27 @@ const chatSlice = createSlice({
     },
 
     // Single new message add karo
-    addNewMessage: (state, action) => {
-      const { chatId, content, role } = action.payload;
+  addNewMessage: (state, action) => {
+  const { chatId, content, role, image } = action.payload;
 
-      // Safety: agar chat Redux mein nahi hai to create karo
-      if (!state.chats[chatId]) {
-        state.chats[chatId] = {
-          id: chatId,
-          title: "New Chat",
-          messages: [],
-          lastUpdated: new Date().toISOString(),
-        };
-      }
+  // Safety: agar chat Redux mein nahi hai to create karo
+  if (!state.chats[chatId]) {
+    state.chats[chatId] = {
+      id: chatId,
+      title: "New Chat",
+      messages: [],
+      lastUpdated: new Date().toISOString(),
+    };
+  }
 
-      state.chats[chatId].messages.push({
-        content,
-        role,
-      });
+  state.chats[chatId].messages.push({
+    content,
+    role,
+    image: image || null,
+  });
 
-      state.chats[chatId].lastUpdated = new Date().toISOString();
-    },
+  state.chats[chatId].lastUpdated = new Date().toISOString();
+},
 
     // Purani chat ke saare messages load karo
     addMessages: (state, action) => {
