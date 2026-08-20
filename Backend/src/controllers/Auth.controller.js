@@ -113,11 +113,12 @@ export async function loginUser(req, res) {
       });
     }
 
-    if (user && user.isverified === false) {
-      return res
-        .status(400)
-        .json({ message: "Please verify your email before logging in" });
-    }
+    if (!user.isverified) {
+  return res.status(403).json({
+    success: false,
+    message: "Please verify your email before logging in",
+  });
+}
 
     const token = jwt.sign(
       {

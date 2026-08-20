@@ -8,7 +8,7 @@ import ChatSidebar from "../components/ChatSidebar";
 import HomeScreen from "../components/HomeScreen";
 import ChatMessages from "../components/ChatMessages";
 import ChatComposer from "../components/ChatComposer";
-
+import ProfileSettings from "../components/ProfileSettings";
 const Dashboard = () => {
   const dispatch = useDispatch();
 
@@ -29,7 +29,7 @@ const Dashboard = () => {
   const [message, setMessage] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-
+const [profileOpen, setProfileOpen] = useState(false);
   const activeChat = currentChatId ? chats[currentChatId] : null;
   const messages = activeChat?.messages || [];
 
@@ -174,8 +174,11 @@ const Dashboard = () => {
         overlay: "bg-black/35",
       };
 
-  const chatEntries = Object.values(chats || {});
-
+const chatEntries = Object.values(chats || {}).sort(
+  (a, b) =>
+    new Date(b.lastUpdated || 0) -
+    new Date(a.lastUpdated || 0)
+);
   /* =========================
      UI
   ========================= */
@@ -183,7 +186,7 @@ const Dashboard = () => {
   return (
     <div
       className={`
-        relative flex h-[100dvh] w-full overflow-hidden
+        relative flex h-dvh w-full overflow-hidden
         font-[Inter,ui-sans-serif,system-ui]
         transition-colors duration-500
         ${theme.app}
@@ -195,9 +198,9 @@ const Dashboard = () => {
         <div
           className={`
             absolute -left-24 -top-28
-            h-[360px] w-[360px]
+            h-90 w-90
             rounded-full
-            bg-gradient-to-br
+            bg-linear-to-br
             ${theme.blobA}
             blur-3xl
           `}
@@ -209,9 +212,9 @@ const Dashboard = () => {
         <div
           className={`
             absolute -bottom-32 right-[5%]
-            h-[330px] w-[330px]
+            h-82.5 w-82.5
             rounded-full
-            bg-gradient-to-br
+            bg-linear-to-br
             ${theme.blobB}
             blur-3xl
           `}
@@ -254,6 +257,7 @@ const Dashboard = () => {
         openChat={openChat}
         handleDeleteChat={handleDeleteChat}
         handleLogout={handleLogout}
+        setProfileOpen={setProfileOpen}
       />
 
       {/* Main */}
@@ -308,6 +312,15 @@ const Dashboard = () => {
         </div>
       </main>
 
+
+{profileOpen && (
+  <ProfileSettings
+    user={user}
+    theme={theme}
+    onClose={() => setProfileOpen(false)}
+     handleLogout={handleLogout}
+  />
+)}
       {/* Global animations */}
 
       <style>{`

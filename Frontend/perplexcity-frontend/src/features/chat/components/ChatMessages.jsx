@@ -62,8 +62,8 @@ const ChatMessages = ({
 
               <div
                 className={`
-                  break-words
-                  rounded-2xl
+                  rounded-xl
+                  wrap-break-word
                   px-3.5 py-2.5
                   text-[13.5px]
                   leading-6
@@ -75,7 +75,7 @@ const ChatMessages = ({
                   ${
                     isUser
                       ? `
-                        bg-gradient-to-br
+                        bg-linear-to-br
                         from-[#EFD69C]
                         via-[#CFA458]
                         to-[#96742E]
@@ -94,7 +94,7 @@ const ChatMessages = ({
                       src={msg.image}
                       alt="Uploaded"
                       className="
-                        max-h-[320px]
+                        max-h-80
                         max-w-full
                         rounded-xl
                         object-contain
@@ -108,8 +108,7 @@ const ChatMessages = ({
                     <div
                       className="
                         whitespace-pre-wrap
-                        break-words
-                        [overflow-wrap:anywhere]
+                        wrap-anywhere
                       "
                     >
                       {msg.content}

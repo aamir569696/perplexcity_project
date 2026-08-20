@@ -14,9 +14,9 @@ import { resetChat } from "../../chat/chat.slice";
 export function useAuth() {
   const dispatch = useDispatch();
 
-  // =========================
+  
   // REGISTER
-  // =========================
+ 
   async function handleRegister({ username, email, password }) {
     try {
       dispatch(setLoading(true));
@@ -49,55 +49,60 @@ export function useAuth() {
     }
   }
 
-  // =========================
+  
   // LOGIN
-  // =========================
-  async function handleLogin(email, password) {
-    try {
-      dispatch(setLoading(true));
 
-      // Purane user ki chats clear
-      dispatch(resetChat());
+async function handleLogin(email, password) {
+  try {
+    dispatch(setLoading(true));
 
-      const data = await loginUser({
-        email,
-        password,
-      });
+    const data = await loginUser({
+      email,
+      password,
+    });
 
-      console.log("LOGIN RESPONSE:", data);
+    console.log("LOGIN RESPONSE:", data);
 
-      localStorage.setItem("token", data.token);
+    // Purane user ki chats clear
+    dispatch(resetChat());
 
-      // Actual user Redux mein save
-      dispatch(setUser(data.user));
+    // Token save
+    localStorage.setItem("token", data.token);
 
-      return true;
+    // User Redux mein save
+    dispatch(setUser(data.user));
 
-    } catch (error) {
-      console.log("LOGIN ERROR:", error.response?.data);
+    // Success popup
+    toast.success("Login successful!");
 
-      localStorage.removeItem("token");
+    return true;
 
-      dispatch(setUser(null));
+  } catch (error) {
+    console.log("LOGIN ERROR:", error.response?.data);
 
-      const errorMessage =
-        error.response?.data?.message ||
-        "Login failed. Please check your credentials.";
+    localStorage.removeItem("token");
 
-      dispatch(setError(errorMessage));
+    dispatch(setUser(null));
 
-      toast.error(errorMessage);
+    const errorMessage =
+      error.response?.data?.message ||
+      "Login failed. Please check your credentials.";
 
-      return false;
+    dispatch(setError(errorMessage));
 
-    } finally {
-      dispatch(setLoading(false));
-    }
+    // Backend ka message popup mein show hoga
+    toast.error(errorMessage);
+
+    return false;
+
+  } finally {
+    dispatch(setLoading(false));
   }
+}
 
-  // =========================
+  
   // GET ME
-  // =========================
+ 
   async function handleGetMe() {
     try {
       dispatch(setLoading(true));
@@ -136,9 +141,9 @@ export function useAuth() {
     }
   }
 
-  // =========================
+  
   // LOGOUT
-  // =========================
+  
   async function handleLogout() {
     try {
       dispatch(setLoading(true));

@@ -48,7 +48,7 @@ const HomeScreen = ({
               h-10 w-10
               items-center justify-center
               rounded-xl
-              bg-gradient-to-br
+              bg-linear-to-br
               from-[#EFD69C]
               via-[#CFA458]
               to-[#83642A]
@@ -103,7 +103,7 @@ const HomeScreen = ({
         <p
           className={`
             mx-auto mt-2.5
-            max-w-[300px]
+            max-w-75
             px-3
             text-[12px]
             leading-5
@@ -208,7 +208,7 @@ const HomeScreen = ({
               }
             `}
           >
-            <span className="min-w-0 break-words">
+            <span className="min-w-0 wrap-break-word">
               {suggestion}
             </span>
 

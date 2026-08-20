@@ -117,28 +117,18 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+const handleSubmit = async (event) => {
+  event.preventDefault();
 
-    console.log("Calling handleLogin");
+  const success = await handleLogin(
+    formData.email,
+    formData.password
+  );
 
-    const payload = {
-      email: formData.email,
-      password: formData.password,
-    };
-
-    const success = await handleLogin(payload.email, payload.password);
-
-    if (success) {
-      navigate("/dashboard");
-    } else {
-      prompt(
-        "Login failed. Please check your credentials and try again."
-      );
-    }
-
-    console.log(success);
-  };
+  if (success) {
+    navigate("/dashboard");
+  }
+};
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#08080A] text-[#EEECE5]">
@@ -146,19 +136,19 @@ const Login = () => {
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#CFA458]/10 blur-[120px]" />
 
-        <div className="absolute -bottom-40 -right-20 h-[420px] w-[420px] rounded-full bg-[#5967FF]/8 blur-[130px]" />
+        <div className="absolute -bottom-40 -right-20 h-105420px] rounded-full bg-[#5967FF]/8 blur-[130px]" />
 
-        <div className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#CFA458]/[0.025] blur-[100px]" />
+        <div className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#CFA458]/2.5 blur-[100px]" />
       </div>
 
       {/* Main */}
       <main className="relative z-10 flex min-h-screen items-center justify-center px-4 py-8 sm:px-6">
-        <div className="w-full max-w-[460px]">
+        <div className="w-full max-w-115">
 
           {/* Logo */}
           <div className="mb-8 flex justify-center">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#EFD69C] to-[#96742E] text-sm font-bold text-[#0B0B0D] shadow-[0_8px_30px_-8px_rgba(207,164,88,0.55)]">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-[#EFD69C] to-[#96742E] text-sm font-bold text-[#0B0B0D] shadow-[0_8px_30px_-8px_rgba(207,164,88,0.55)]">
                 P
               </div>
 
@@ -169,7 +159,7 @@ const Login = () => {
           </div>
 
           {/* Login Card */}
-          <div className="rounded-[28px] border border-white/[0.08] bg-[#101012]/90 p-6 shadow-[0_30px_100px_-30px_rgba(0,0,0,0.8)] backdrop-blur-2xl sm:p-8">
+          <div className="rounded-[28px] border border-white/8 bg-[#101012]/90 p-6 shadow-[0_30px_100px_-30px_rgba(0,0,0,0.8)] backdrop-blur-2xl sm:p-8">
 
             {/* Header */}
             <div className="mb-8 text-center">
@@ -199,7 +189,7 @@ const Login = () => {
                 </label>
 
                 <div className="group relative">
-                  <IconMail className="pointer-events-none absolute left-4 top-1/2 h-[17px] w-[17px] -translate-y-1/2 text-[#66666D] transition-colors group-focus-within:text-[#CFA458]" />
+                  <IconMail className="pointer-events-none absolute left-4 top-1/2 h-4.25 w-4.25 -translate-y-1/2 text-[#66666D] transition-colors group-focus-within:text-[#CFA458]" />
 
                   <input
                     id="email"
@@ -210,7 +200,7 @@ const Login = () => {
                     placeholder="you@example.com"
                     autoComplete="email"
                     required
-                    className="h-[50px] w-full rounded-xl border border-white/[0.08] bg-[#0A0A0C] pl-11 pr-4 text-sm text-[#F4F0E6] outline-none transition-all duration-200 placeholder:text-[#4F4F55] hover:border-white/[0.13] focus:border-[#CFA458]/55 focus:bg-[#0D0D0F] focus:ring-4 focus:ring-[#CFA458]/10"
+                    className="h-12.5 w-full rounded-xl border border-white/8 bg-[#0A0A0C] pl-11 pr-4 text-sm text-[#F4F0E6] outline-none transition-all duration-200 placeholder:text-[#4F4F55] hover:border-white/13 focus:border-[#CFA458]/55 focus:bg-[#0D0D0F] focus:ring-4 focus:ring-[#CFA458]/10"
                   />
                 </div>
               </div>
@@ -234,7 +224,7 @@ const Login = () => {
                 </div>
 
                 <div className="group relative">
-                  <IconLock className="pointer-events-none absolute left-4 top-1/2 h-[17px] w-[17px] -translate-y-1/2 text-[#66666D] transition-colors group-focus-within:text-[#CFA458]" />
+                  <IconLock className="pointer-events-none absolute left-4 top-1/2 h-4.25 w-4.25 -translate-y-1/2 text-[#66666D] transition-colors group-focus-within:text-[#CFA458]" />
 
                   <input
                     id="password"
@@ -245,7 +235,7 @@ const Login = () => {
                     placeholder="Enter your password"
                     autoComplete="current-password"
                     required
-                    className="h-[50px] w-full rounded-xl border border-white/[0.08] bg-[#0A0A0C] pl-11 pr-4 text-sm text-[#F4F0E6] outline-none transition-all duration-200 placeholder:text-[#4F4F55] hover:border-white/[0.13] focus:border-[#CFA458]/55 focus:bg-[#0D0D0F] focus:ring-4 focus:ring-[#CFA458]/10"
+                    className="h-12.5 w-full rounded-xl border border-white/8 bg-[#0A0A0C] pl-11 pr-4 text-sm text-[#F4F0E6] outline-none transition-all duration-200 placeholder:text-[#4F4F55] hover:border-white/13 focus:border-[#CFA458]/55 focus:bg-[#0D0D0F] focus:ring-4 focus:ring-[#CFA458]/10"
                   />
                 </div>
               </div>
@@ -264,7 +254,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="group relative mt-2 flex h-[50px] w-full items-center justify-center overflow-hidden rounded-xl bg-gradient-to-r from-[#EFD69C] via-[#CFA458] to-[#96742E] text-sm font-semibold text-[#0B0B0D] shadow-[0_12px_30px_-12px_rgba(207,164,88,0.55)] transition-all duration-300 hover:-translate-y-[1px] hover:shadow-[0_16px_35px_-12px_rgba(207,164,88,0.7)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 focus:outline-none focus:ring-4 focus:ring-[#CFA458]/20"
+                className="group relative mt-2 flex h-12.5 w-full items-center justify-center overflow-hidden rounded-xl bg-linear-to-r from-[#EFD69C] via-[#CFA458] to-[#96742E] text-sm font-semibold text-[#0B0B0D] shadow-[0_12px_30px_-12px_rgba(207,164,88,0.55)] transition-all duration-300 hover:-translate-y-px hover:shadow-[0_16px_35px_-12px_rgba(207,164,88,0.7)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 focus:outline-none focus:ring-4 focus:ring-[#CFA458]/20"
               >
                 <span className="relative z-10 flex items-center gap-2">
                   {loading ? "Signing in..." : "Sign in"}

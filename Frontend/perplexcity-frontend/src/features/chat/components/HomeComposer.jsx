@@ -1,3 +1,4 @@
+import { useLayoutEffect } from "react";
 import { IconArrowUp } from "./Icons";
 
 const HomeComposer = ({
@@ -9,6 +10,22 @@ const HomeComposer = ({
   textareaRef,
   handleSubmit,
 }) => {
+
+  useLayoutEffect(() => {
+    const textarea = textareaRef?.current;
+
+    if (!textarea) return;
+
+    textarea.style.height = "auto";
+
+    const maxHeight = 200;
+
+    textarea.style.height = `${Math.min(
+      textarea.scrollHeight,
+      maxHeight
+    )}px`;
+  }, [message, textareaRef]);
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -22,7 +39,7 @@ const HomeComposer = ({
           pointer-events-none
           absolute -inset-2
           rounded-[28px]
-          bg-gradient-to-r
+          bg-linear-to-r
           from-[#CFA458]/20
           via-transparent
           to-[#CFA458]/20
@@ -38,7 +55,7 @@ const HomeComposer = ({
         className={`
           peer relative
           overflow-hidden
-          rounded-[24px]
+          rounded-3xl
           border
           p-2.5
           backdrop-blur-xl
@@ -142,17 +159,17 @@ const HomeComposer = ({
           className={`
             composer-scroll
             block w-full
-            min-h-[64px]
-            max-h-[200px]
+            min-h-16
+            max-h-50
             resize-none
-            overflow-hidden
+            overflow-y-auto
             bg-transparent
             px-2.5 py-2
             text-[14px]
             leading-6
             outline-none
 
-            sm:min-h-[72px]
+            sm:min-h-18
             sm:px-3
             sm:text-[15px]
 
@@ -256,7 +273,7 @@ const HomeComposer = ({
               items-center
               justify-center
               rounded-full
-              bg-gradient-to-br
+              bg-linear-to-br
               from-[#EFD69C]
               via-[#CFA458]
               to-[#96742E]

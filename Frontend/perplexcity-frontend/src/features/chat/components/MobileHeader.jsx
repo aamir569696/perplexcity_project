@@ -45,7 +45,7 @@ const MobileHeader = ({
             flex h-7 w-7 shrink-0
             items-center justify-center
             rounded-lg
-            bg-gradient-to-br
+            bg-linear-to-br
             from-[#EAD095]
             to-[#96742E]
             text-[11px]
@@ -75,7 +75,7 @@ const MobileHeader = ({
         `}
         aria-label="New chat"
       >
-        <IconPlus className="h-[18px] w-[18px]" />
+        <IconPlus className="h-4.5 w-4.5" />
       </button>
     </header>
   );

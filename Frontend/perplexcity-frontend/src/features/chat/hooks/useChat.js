@@ -79,14 +79,14 @@ async function handlesendMessage({
 
     // Sirf NEW chat ko Redux mein create karo
     if (chat) {
-      dispatch(
-        createnewChat({
-          chatId: chat._id,
-          title: chat.title,
-        })
-      );
-    }
-
+  dispatch(
+    createnewChat({
+      chatId: chat._id,
+      title: chat.title,
+      lastUpdated: new Date().toISOString(),
+    })
+  );
+}
     // User message add karo
     dispatch(
       addNewMessage({
@@ -127,11 +127,13 @@ async function handlesendMessage({
 }
 
 
-  async function hanglegetChats() {
+ async function hanglegetChats() {
+  try {
     dispatch(setLoading(true));
 
     const data = await getChats();
     const { chats } = data;
+
     dispatch(
       setChats(
         chats.reduce((acc, chat) => {
@@ -139,14 +141,26 @@ async function handlesendMessage({
             id: chat._id,
             title: chat.title,
             messages: [],
-            lastUpdated: chat.updatedAt,
+            lastUpdated: chat.updatedAt || chat.createdAt,
           };
+
           return acc;
         }, {}),
       ),
     );
+  } catch (error) {
+    console.error("Get chats failed:", error);
+
+    const errorMessage =
+      error.response?.data?.message ||
+      "Chats load nahi ho sake.";
+
+    dispatch(seterror(errorMessage));
+    toast.error(errorMessage);
+  } finally {
     dispatch(setLoading(false));
   }
+}
 
  async function handleOpenChats(chatId) {
   try {

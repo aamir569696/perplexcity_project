@@ -23,19 +23,21 @@ const chatSlice = createSlice({
 
 
     // New chat create karo
-    createnewChat: (state, action) => {
-      const { chatId, title } = action.payload;
+  createnewChat: (state, action) => {
+  const { chatId, title, lastUpdated } = action.payload;
 
-      // Agar chat pehle se  hai to uske messages delete mat karo
-      if (!state.chats[chatId]) {
-        state.chats[chatId] = {
-          id: chatId,
-          title: title || "New Chat",
-          messages: [],
-          lastUpdated: new Date().toISOString(),
-        };
-      }
-    },
+  if (!state.chats[chatId]) {
+    state.chats[chatId] = {
+      id: chatId,
+      title: title || "New Chat",
+      messages: [],
+      lastUpdated: lastUpdated || new Date().toISOString(),
+    };
+  } else {
+    state.chats[chatId].lastUpdated =
+      lastUpdated || new Date().toISOString();
+  }
+},
 
     // Single new message add karo
   addNewMessage: (state, action) => {

@@ -1,3 +1,5 @@
+//import { IconArrowUp } from "./Icons";
+import { useLayoutEffect, useRef } from "react";
 import { IconArrowUp } from "./Icons";
 
 const ChatComposer = ({
@@ -6,9 +8,26 @@ const ChatComposer = ({
   setMessage,
   selectedImage,
   setSelectedImage,
-  textareaRef,
   handleSubmit,
 }) => {
+
+ const textareaRef = useRef(null);
+
+  useLayoutEffect(() => {
+    const textarea = textareaRef.current;
+
+    if (!textarea) return;
+
+    textarea.style.height = "auto";
+
+    const maxHeight = 200;
+
+    textarea.style.height = `${Math.min(
+      textarea.scrollHeight,
+      maxHeight
+    )}px`;
+  }, [message]);
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -144,10 +163,10 @@ const ChatComposer = ({
               block
               min-w-0
               flex-1
-              max-h-[200px]
-              min-h-[38px]
+              max-h-50
+              min-h-9.5
               resize-none
-              overflow-hidden
+              overflow-y-auto
               bg-transparent
               px-2
               py-1.5
@@ -155,7 +174,7 @@ const ChatComposer = ({
               leading-6
               outline-none
 
-              sm:min-h-[40px]
+              sm:min-h-10
               sm:text-[14.5px]
 
               ${theme.placeholder}
@@ -233,7 +252,7 @@ const ChatComposer = ({
               items-center
               justify-center
               rounded-full
-              bg-gradient-to-br
+              bg-linear-to-br
               from-[#EFD69C]
               via-[#CFA458]
               to-[#96742E]

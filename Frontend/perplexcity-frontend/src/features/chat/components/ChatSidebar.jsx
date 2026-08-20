@@ -1,10 +1,11 @@
+import { useState } from "react";
 import {
   IconSearch,
   IconClock,
   IconPlus,
   IconSun,
   IconMoon,
-  IconLogout,
+  // IconLogout,
   IconX,
   IconMessage,
 } from "./Icons";
@@ -20,14 +21,21 @@ const ChatSidebar = ({
   openChat,
   startNewChat,
   handleDeleteChat,
-  handleLogout,
+  // handleLogout,
   user,
+  setProfileOpen,
 }) => {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredChats = chatEntries.filter((chat) =>
+    chat.title.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
   return (
     <aside
       className={`
         fixed inset-y-0 left-0 z-50
-        flex w-[286px] max-w-[86vw] flex-col
+        flex w-71.5 max-w-[86vw] flex-col
         border-r
         shadow-[20px_0_70px_-35px_rgba(0,0,0,0.7)]
         backdrop-blur-xl
@@ -37,7 +45,7 @@ const ChatSidebar = ({
 
         md:static
         md:z-20
-        md:w-[250px]
+        md:w-62.5
         md:max-w-none
         md:translate-x-0
         md:shadow-none
@@ -60,7 +68,7 @@ const ChatSidebar = ({
               relative flex h-8 w-8 shrink-0
               items-center justify-center
               rounded-[10px]
-              bg-gradient-to-br
+              bg-linear-to-br
               from-[#F1D99B]
               via-[#CFA458]
               to-[#856323]
@@ -112,54 +120,31 @@ const ChatSidebar = ({
       {/* Navigation */}
 
       <div className="px-3 sm:px-4">
-        <button
-          type="button"
+        <div
           className={`
-            flex w-full items-center gap-3
-            rounded-xl
-            px-3.5 py-2.5
-            text-[13px]
-            font-medium
-            transition-all
-            ${theme.active}
-          `}
+    flex w-full items-center gap-3
+    rounded-xl
+    px-3.5 py-2.5
+    border
+    ${theme.border}
+  `}
         >
-          <span
-            className="
-              flex h-7 w-7 items-center justify-center
-              rounded-lg
-              bg-[#CFA458]/10
-            "
-          >
-            <IconSearch className="h-4 w-4 text-[#CFA458]" />
-          </span>
+          <IconSearch className="h-4 w-4 shrink-0 text-[#CFA458]" />
 
-          Search
-        </button>
-
-        <button
-          type="button"
-          className={`
-            mt-1 flex w-full items-center gap-3
-            rounded-xl
-            px-3.5 py-2.5
-            text-[13px]
-            transition-all
-            ${theme.muted}
-            ${theme.hover}
-          `}
-        >
-          <span
-            className="
-              flex h-7 w-7 items-center justify-center
-              rounded-lg
-            "
-          >
-            <IconClock className="h-4 w-4" />
-          </span>
-
-          Chats
-        </button>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search chats..."
+            className={`
+      min-w-0 flex-1
+      bg-transparent
+      outline-none
+      text-[13px]
+      ${theme.text || ""}
+    `}
+          />
+        </div>
 
         <button
           type="button"
@@ -193,7 +178,6 @@ const ChatSidebar = ({
               "
             />
           </span>
-
           New Chat
         </button>
       </div>
@@ -228,7 +212,7 @@ const ChatSidebar = ({
                 rounded-full px-2 py-0.5
                 text-[9px]
                 ${theme.muted}
-                ${darkMode ? "bg-white/[0.04]" : "bg-black/[0.035]"}
+                ${darkMode ? "bg-white/4" : "bg-black/[0.035]"}
               `}
             >
               {chatEntries.length}
@@ -263,7 +247,7 @@ const ChatSidebar = ({
           </div>
         ) : (
           <div className="space-y-1">
-            {chatEntries.map((chat) => {
+            {filteredChats.map((chat) => {
               const isActive = currentChatId === chat.id;
 
               return (
@@ -275,21 +259,17 @@ const ChatSidebar = ({
                     rounded-xl
                     text-[12.5px]
                     transition-all duration-200
-                    ${
-                      isActive
-                        ? theme.active
-                        : `${theme.muted} ${theme.hover}`
-                    }
+                    ${isActive ? theme.active : `${theme.muted} ${theme.hover}`}
                   `}
                 >
                   {isActive && (
                     <span
                       className="
                         absolute left-0 top-1/2
-                        h-5 w-[3px]
+                        h-5 w-0.75
                         -translate-y-1/2
                         rounded-full
-                        bg-gradient-to-b
+                        bg-linear-to-b
                         from-[#EFD69C]
                         to-[#96742E]
                         shadow-[0_0_10px_rgba(207,164,88,.4)]
@@ -382,7 +362,6 @@ const ChatSidebar = ({
             ) : (
               <IconSun className="h-4 w-4" />
             )}
-
             Appearance
           </span>
 
@@ -391,20 +370,20 @@ const ChatSidebar = ({
               relative flex h-6 w-11
               items-center rounded-full
               transition-colors duration-300
-              ${darkMode ? "bg-white/[0.09]" : "bg-[#E9DEBC]"}
+              ${darkMode ? "bg-white/9" : "bg-[#E9DEBC]"}
             `}
           >
             <span
               className={`
-                absolute flex h-[18px] w-[18px]
+                absolute flex h-4.5 w-4.5
                 items-center justify-center
                 rounded-full
-                bg-gradient-to-br
+                bg-linear-to-br
                 from-[#EAD095]
                 to-[#96742E]
                 shadow-md
                 transition-transform duration-300
-                ${darkMode ? "translate-x-[22px]" : "translate-x-[3px]"}
+                ${darkMode ? "translate-x-5.5" : "translate-x-0.75"}
               `}
             >
               {darkMode ? (
@@ -424,7 +403,7 @@ const ChatSidebar = ({
               flex h-8 w-8 shrink-0
               items-center justify-center
               rounded-full
-              bg-gradient-to-br
+              bg-linear-to-br
               from-[#EAD095]
               to-[#83642A]
               text-[11px]
@@ -451,9 +430,40 @@ const ChatSidebar = ({
           </div>
         </div>
 
-        {/* Logout */}
+        {/* Profile Settings */}
 
         <button
+          type="button"
+          onClick={() => setProfileOpen(true)}
+          className={`
+    cursor-pointer
+    mt-1 flex w-full items-center gap-3
+    rounded-xl
+    px-3.5 py-2.5
+    text-[12.5px]
+    font-medium
+    transition-all
+    ${theme.muted}
+    ${theme.hover}
+  `}
+        >
+          <span
+            className="
+      flex h-7 w-7
+      items-center justify-center
+      rounded-lg
+      bg-white/5
+      text-sm
+    "
+          >
+            ⚙
+          </span>
+          Profile Settings
+        </button>
+
+        {/* // Logout */}
+
+        {/* <button
           type="button"
           onClick={handleLogout}
           className="
@@ -479,7 +489,7 @@ const ChatSidebar = ({
           </span>
 
           Logout
-        </button>
+        </button> */}
       </div>
     </aside>
   );
